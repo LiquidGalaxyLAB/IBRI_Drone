@@ -93,9 +93,9 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
         mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("s:0-1=feaa,m:2-2=10,p:3-3:-41,i:4-20v"));
         // IBEACON AND ¿URI?
         mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("s:0-1=fed8,m:2-2=00,p:3-3:-41,i:4-21v"));
-        
-        mBeaconManager.bind(this);
 
+        mBeaconManager.bind(this);
+    
 
     }
 
