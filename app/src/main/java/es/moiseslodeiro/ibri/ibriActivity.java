@@ -61,6 +61,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
     static String serverport = "";
     static String password = "";
     static String droneId = "";
+    static String base64Photo = "";
 
     static double latitude = 0.0;
     static double longitude = 0.0;

@@ -27,6 +27,12 @@
             android:exported="false" >
         </service>
 
+        <service
+            android:name=".PhotoTakingService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+
 
     </application>
 

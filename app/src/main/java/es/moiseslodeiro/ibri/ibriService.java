@@ -8,12 +8,14 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
@@ -25,6 +27,9 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.utils.UrlBeaconUrlCompressor;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 import java.util.Collection;
@@ -46,6 +51,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
     final private String TAG = "ibriService";
     private PowerManager.WakeLock mWakeLock;
     private BeaconManager mBeaconManager;
+    public static Intent serviceIntent;
 
 
     @Override
@@ -61,7 +67,10 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
         intent = new Intent(BROADCAST_ACTION);
 
-        Log.d(TAG, "Service Started");
+
+
+
+        Log.d(TAG, "Servicio creado...");
 
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "worker");
@@ -94,8 +103,13 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
         // IBEACON AND ¿URI?
         mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("s:0-1=fed8,m:2-2=00,p:3-3:-41,i:4-21v"));
 
+
         mBeaconManager.bind(this);
-    
+
+
+
+
+
 
     }
 
@@ -111,6 +125,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
     public synchronized void onDestroy() {
         sendResult("Service has been destroyed");
         mBeaconManager.unbind(this);
+        stopService(serviceIntent);
         Log.d(TAG, "Service destroyed...");
     }
 
@@ -171,7 +186,6 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("ERROR GETTING DATA","That didn't work!");
-                showMSg("Error getting data from server. Stoping service");
             }
         });
         // Add the request to the RequestQueue.
@@ -182,7 +196,8 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
     private void sendData(final String beaconUrl, final double lat, final double lng){
 
         RequestQueue queue = Volley.newRequestQueue(this); // this = context
-        String url = "http://10.163.1.126:80/setDroneTracking/";
+        String url ="http://"+ibriActivity.serverport+"/setDroneTracking/";
+
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>()
                 {
@@ -249,13 +264,16 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                 Log.d("BeaconScan", sendString);
 
+
                 sendData(url, ibriActivity.latitude, ibriActivity.longitude);
+
 
             }
 
         }
 
-
+        serviceIntent = new Intent(getApplicationContext(), PhotoTakingService.class);
+        startService(serviceIntent);
 
     }
 
