@@ -61,8 +61,6 @@ public class PhotoTakingService extends Service {
 
                 Camera camera = null;
 
-
-
                 try {
                     camera = Camera.open();
                     showMessage("Opened camera");
@@ -97,13 +95,8 @@ public class PhotoTakingService extends Service {
                         }
                     }
 
-
                     params.setPictureSize(mSize.width, mSize.height);
-                   // params.setFlashMode("FLASH_MODE_AUTO");
-                   // params.setFocusMode("FOCUS_MODE_INFINITY");
-                   // params.setSceneMode("SCENE_MODE_LANDSCAPE");
                     camera.setParameters(params);
-
 
                     try {
                         camera.setPreviewDisplay(holder);
@@ -155,9 +148,12 @@ public class PhotoTakingService extends Service {
     }
 
     static class SavePhotoTask extends AsyncTask<byte[], String, String> {
+
+        private int numPhoto = 0;
+
         @Override
         protected String doInBackground(byte[]... jpeg) {
-            File photo = new File(Environment.getExternalStorageDirectory(), "/photo.jpg");
+            File photo = new File(Environment.getExternalStorageDirectory(), "/ibriphoto"+String.valueOf(numPhoto)+".jpg");
 
             if (photo.exists()) {
                 photo.delete();
@@ -181,9 +177,7 @@ public class PhotoTakingService extends Service {
 
         protected void onPostExecute(String result) {
 
-            try {
-
-                String filepath = Environment.getExternalStorageDirectory()+"/photo.jpg";
+                String filepath = Environment.getExternalStorageDirectory()+"/ibriphoto"+String.valueOf(numPhoto)+".jpg";
                 File imagefile = new File(filepath);
                 FileInputStream fis = null;
                 try {
@@ -198,15 +192,15 @@ public class PhotoTakingService extends Service {
                 byte[] b = baos.toByteArray();
                 ibriActivity.base64Photo = Base64.encodeToString(b, Base64.NO_WRAP);
 
-                BufferedWriter out = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory()+"/texto.txt"));
-                out.write(ibriActivity.base64Photo);
-                out.close();
+                numPhoto++;
+
+                //BufferedWriter out = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory()+"/texto.txt"));
+                //out.write(ibriActivity.base64Photo);
+                //out.close();
 
 
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
 
 
         }
