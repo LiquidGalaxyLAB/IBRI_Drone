@@ -177,7 +177,18 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
                         }
 
 
-                        Map jsonJavaRootObject = new Gson().fromJson(respuesta, Map.class);
+                        try {
+
+                            JSONObject jo = new JSONObject(respuesta);
+
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        //Map jsonJavaRootObject = new Gson().fromJson(respuesta, Map.class);
 
 
 

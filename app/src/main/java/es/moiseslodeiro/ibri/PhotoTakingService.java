@@ -16,11 +16,13 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,6 +31,8 @@ import android.view.WindowManager;
 
 /** Takes a single photo on service start. */
 public class PhotoTakingService extends Service {
+
+    static byte[] foto;
 
     @Override
     public void onCreate() {
@@ -68,13 +72,34 @@ public class PhotoTakingService extends Service {
 
                     Camera.Size mSize = null;
 
+                    /*
+                    D/SIZE:: 2592w  1944
+                    D/SIZE:: 2048w  1536
+                    D/SIZE:: 1920w  1080
+                    D/SIZE:: 1600w  1200
+                    D/SIZE:: 1280w  768
+                    D/SIZE:: 1280w  720
+                    D/SIZE:: 1024w  768
+                    D/SIZE:: 800w  600
+                    D/SIZE:: 800w  480
+                    D/SIZE:: 720w  480
+                    D/SIZE:: 640w  480
+                    D/SIZE:: 352w  288
+                    D/SIZE:: 320w  240
+                    D/SIZE:: 176w  144
+                     */
+
                     for(Camera.Size s : sizes){
 
-                        if(s.width <= 3000 && s.height <= 1800){
+                        Log.d("SIZE: ",s.width+"w  "+s.height);
+
+                        if(s.width <= 640 && s.height <= 480){
                             mSize = s;
                             break;
                         }
                     }
+
+
 
                     params.setPictureSize(mSize.width, mSize.height);
                    // params.setFlashMode("FLASH_MODE_AUTO");
@@ -138,7 +163,7 @@ public class PhotoTakingService extends Service {
     static class SavePhotoTask extends AsyncTask<byte[], String, String> {
         @Override
         protected String doInBackground(byte[]... jpeg) {
-            File photo = new File(Environment.getExternalStorageDirectory(), "/dirr/photo.jpg");
+            File photo = new File(Environment.getExternalStorageDirectory(), "/photo.jpg");
 
             if (photo.exists()) {
                 photo.delete();
@@ -150,6 +175,9 @@ public class PhotoTakingService extends Service {
 
                 fos.write(jpeg[0]);
                 fos.close();
+
+                //foto = jpeg[0];
+
             }
             catch (java.io.IOException e) {
                 Log.e("PictureDemo", "Exception in photoCallback", e);
@@ -162,22 +190,40 @@ public class PhotoTakingService extends Service {
         protected void onPostExecute(String result) {
             //showDialog("Downloaded " + result + " bytes");
 
-            String filepath = Environment.getExternalStorageDirectory()+"/dirr/photo.jpg";
-            File imagefile = new File(filepath);
-            FileInputStream fis = null;
             try {
-                fis = new FileInputStream(imagefile);
-            } catch (FileNotFoundException e) {
+                //Thread.sleep(2000);
+                //Log.d("IBRI IMAGE_1", Base64.encodeToString(foto, Base64.DEFAULT));
+
+                String filepath = Environment.getExternalStorageDirectory()+"/photo.jpg";
+                File imagefile = new File(filepath);
+                FileInputStream fis = null;
+                try {
+                    fis = new FileInputStream(imagefile);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                Bitmap bm = BitmapFactory.decodeStream(fis);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bm.compress(Bitmap.CompressFormat.WEBP, 100 , baos);
+                byte[] b = baos.toByteArray();
+                ibriActivity.base64Photo = Base64.encodeToString(b, Base64.NO_WRAP);
+
+
+
+                Log.d("IBRI IMAGE_2", ibriActivity.base64Photo);
+
+
+                BufferedWriter out = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory()+"/texto.txt"));
+                out.write(ibriActivity.base64Photo);
+                out.close();
+
+
+
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            Bitmap bm = BitmapFactory.decodeStream(fis);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bm.compress(Bitmap.CompressFormat.JPEG, 100 , baos);
-            byte[] b = baos.toByteArray();
-            ibriActivity.base64Photo = Base64.encodeToString(b, Base64.NO_WRAP);
-
-            Log.d("IBRI IMAGE", ibriActivity.base64Photo);
 
         }
 
