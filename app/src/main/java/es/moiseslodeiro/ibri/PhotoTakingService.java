@@ -91,8 +91,6 @@ public class PhotoTakingService extends Service {
 
                     for(Camera.Size s : sizes){
 
-                        Log.d("SIZE: ",s.width+"w  "+s.height);
-
                         if(s.width <= 640 && s.height <= 480){
                             mSize = s;
                             break;
@@ -100,14 +98,11 @@ public class PhotoTakingService extends Service {
                     }
 
 
-
                     params.setPictureSize(mSize.width, mSize.height);
                    // params.setFlashMode("FLASH_MODE_AUTO");
                    // params.setFocusMode("FOCUS_MODE_INFINITY");
                    // params.setSceneMode("SCENE_MODE_LANDSCAPE");
                     camera.setParameters(params);
-
-
 
 
                     try {
@@ -127,7 +122,6 @@ public class PhotoTakingService extends Service {
                         public void onPictureTaken(byte[] data, Camera camera) {
                             showMessage("Took picture");
                             new SavePhotoTask().execute(data);
-                            Log.d("data byte", String.valueOf(data));
 
                             camera.release();
                         }
@@ -176,8 +170,6 @@ public class PhotoTakingService extends Service {
                 fos.write(jpeg[0]);
                 fos.close();
 
-                //foto = jpeg[0];
-
             }
             catch (java.io.IOException e) {
                 Log.e("PictureDemo", "Exception in photoCallback", e);
@@ -188,11 +180,8 @@ public class PhotoTakingService extends Service {
 
 
         protected void onPostExecute(String result) {
-            //showDialog("Downloaded " + result + " bytes");
 
             try {
-                //Thread.sleep(2000);
-                //Log.d("IBRI IMAGE_1", Base64.encodeToString(foto, Base64.DEFAULT));
 
                 String filepath = Environment.getExternalStorageDirectory()+"/photo.jpg";
                 File imagefile = new File(filepath);
@@ -208,11 +197,6 @@ public class PhotoTakingService extends Service {
                 bm.compress(Bitmap.CompressFormat.WEBP, 100 , baos);
                 byte[] b = baos.toByteArray();
                 ibriActivity.base64Photo = Base64.encodeToString(b, Base64.NO_WRAP);
-
-
-
-                Log.d("IBRI IMAGE_2", ibriActivity.base64Photo);
-
 
                 BufferedWriter out = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory()+"/texto.txt"));
                 out.write(ibriActivity.base64Photo);

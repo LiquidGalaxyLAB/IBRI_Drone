@@ -178,7 +178,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
             case REQUEST_CODE_ASK_PERMISSIONS:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission Granted
-                    Log.d("HOLA", "SE HAN ACEPTADO LOS PERMISOS DE GPS");
+                    Log.d("GPS_PERMS", "GPS PERMISSION HAS BEEN GRANTED");
                 } else {
                     // Permission Denied
                     Toast.makeText(ibriActivity.this, "ACCESS_FINE_LOCATION Denied", Toast.LENGTH_SHORT).show();
@@ -194,7 +194,9 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
         TextView tv = (TextView)findViewById(R.id.serverport);
         serverport = (String) String.valueOf(tv.getText());
-
+        TextView pass = (TextView)findViewById(R.id.sharedPass);
+        password = (String) String.valueOf(pass.getText());
+        
         serverIntent = new Intent(this, ibriService.class);
         startService(this.serverIntent);
         registerReceiver(receiver, new IntentFilter(ibriService.BROADCAST_ACTION));
@@ -218,8 +220,6 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onLocationChanged(Location location) {
 
-        // 28.4815393,-16.321767
-
         this.latitude = location.getLatitude();
         this.longitude = location.getLongitude();
 
@@ -231,51 +231,6 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         boolean isInRange = distanceInMeters <= 10;
         Log.d("DISTANCIA", isInRange+"");
         */
-
-//--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------
-
-
-
-        //EJEMPLO OK
-        /*Crypt aesCrypt = Crypt.getInstance();
-
-
-        DataDron data = new DataDron();
-        data.latitude = 20.50;
-        data.longitude = 10.20;
-        data.beacon = 1;
-
-        Gson gson = new Gson();
-        String str = gson.toJson(data);
-
-        //String str = "";
-        Log.i("myTag", "step1: " + str);
-        String a = null;
-        try {
-            a = aesCrypt.encrypt_string(str);
-        } catch (Exception e){
-
-        }
-        Log.i("myTag", "step2: " + a);
-        String b = null;
-        try {
-            b = aesCrypt.decrypt_string(a);
-        } catch (Exception e){
-
-        }
-        Log.i("myTag", "step3: " + b);
-        */
-
-//--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------
-
-
-
-
-
-        //Log.d("DEBUG_GPS", "LNG: "+location.getLongitude());
-        //Log.d("DEBUG_GPS:", "LAT: "+location.getLatitude());
 
     }
 

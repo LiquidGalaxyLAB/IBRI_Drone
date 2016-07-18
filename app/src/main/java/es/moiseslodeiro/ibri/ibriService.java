@@ -168,11 +168,12 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                         Log.d("DATA", response.toString());
                         String respuesta = "";
-                        Crypt aesCrypt = Crypt.getInstance();
+                        Crypt aesCrypt = Crypt.getInstance(ibriActivity.password);
 
                         try {
                             respuesta = aesCrypt.decrypt_string(response);
-                            Log.d("Respuesta", respuesta);
+                            Log.d("Response", respuesta);
+
                         } catch (Exception e){
 
                         }
@@ -187,24 +188,14 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                             for(int i = 0; i < jx.length(); i++){
                                 JSONObject ja = new JSONObject(jx.getString(i)); //jx.getJSONObject(i);
-                                Log.d("SEXY", String.valueOf(ja.getDouble("lat")));
+                                Log.d("REC_LAT", String.valueOf(ja.getDouble("lat")));
+                                Log.d("REC_LNG", String.valueOf(ja.getDouble("lng")));
                             }
-
-                            //Log.d("xxxxxxxxx", jx.toString());
-
-
-
-                            //Log.d("xxxxxxxxxxxxx", String.valueOf(jo.get("positions")));
-
 
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
-                        //Map jsonJavaRootObject = new Gson().fromJson(respuesta, Map.class);
-
-
 
                     }
                 }, new Response.ErrorListener() {
@@ -246,7 +237,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
             {
                 Map<String, String>  params = new HashMap<String, String>();
 
-                Crypt aesCrypt = Crypt.getInstance();
+                Crypt aesCrypt = Crypt.getInstance(ibriActivity.password);
                 DataDron data = new DataDron();
                 data.latitude = lat;
                 data.longitude = lng;

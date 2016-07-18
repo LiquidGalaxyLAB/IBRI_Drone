@@ -49,9 +49,10 @@ public class Crypt {
         random.nextBytes(Crypt.ivBytes);
     }
 
-    public static Crypt getInstance() {
+    public static Crypt getInstance(String newKey) {
         if(instance == null){
             instance = new Crypt();
+            instance.key = newKey;
         }
 
         return instance;
