@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/serverport"
             android:layout_marginRight="2dp"
-            android:text="10.163.1.126:80"
+            android:text="10.163.0.211:80"
             />
 
         <EditText

@@ -191,12 +191,13 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
 
     public void startService(View view) {
-        serverIntent = new Intent(this, ibriService.class);
-        startService(this.serverIntent);
-        registerReceiver(receiver, new IntentFilter(ibriService.BROADCAST_ACTION));
 
         TextView tv = (TextView)findViewById(R.id.serverport);
         serverport = (String) String.valueOf(tv.getText());
+
+        serverIntent = new Intent(this, ibriService.class);
+        startService(this.serverIntent);
+        registerReceiver(receiver, new IntentFilter(ibriService.BROADCAST_ACTION));
 
         Button stopButton = (Button)findViewById(R.id.endService);
         Button startButton = (Button)findViewById(R.id.startService);

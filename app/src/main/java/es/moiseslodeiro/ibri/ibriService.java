@@ -27,6 +27,7 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.utils.UrlBeaconUrlCompressor;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
@@ -181,6 +182,19 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                             JSONObject jo = new JSONObject(respuesta);
 
+                            JSONArray jx =  jo.getJSONArray("positions");
+
+
+                            for(int i = 0; i < jx.length(); i++){
+                                JSONObject ja = new JSONObject(jx.getString(i)); //jx.getJSONObject(i);
+                                Log.d("SEXY", String.valueOf(ja.getDouble("lat")));
+                            }
+
+                            //Log.d("xxxxxxxxx", jx.toString());
+
+
+
+                            //Log.d("xxxxxxxxxxxxx", String.valueOf(jo.get("positions")));
 
 
 
