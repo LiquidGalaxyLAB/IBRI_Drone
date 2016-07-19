@@ -3,7 +3,7 @@ package utils;
 /**
  * Created by moises on 19/07/16.
  */
-public class MissionPositions {
+public class MissionPosition {
 
     private double lat = 0;
     private double lng = 0;

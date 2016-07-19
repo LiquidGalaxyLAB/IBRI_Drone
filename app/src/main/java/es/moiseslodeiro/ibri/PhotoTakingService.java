@@ -177,6 +177,8 @@ public class PhotoTakingService extends Service {
 
         protected void onPostExecute(String result) {
 
+                Log.d("PhotoService", "OnPostExcexute #"+String.valueOf(numPhoto));
+
                 String filepath = Environment.getExternalStorageDirectory()+"/ibriphoto"+String.valueOf(numPhoto)+".jpg";
                 File imagefile = new File(filepath);
                 FileInputStream fis = null;
@@ -197,11 +199,6 @@ public class PhotoTakingService extends Service {
                 //BufferedWriter out = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory()+"/texto.txt"));
                 //out.write(ibriActivity.base64Photo);
                 //out.close();
-
-
-
-
-
 
         }
 

@@ -36,6 +36,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.RangeNotifier;
@@ -44,7 +52,14 @@ import org.altbeacon.beacon.utils.UrlBeaconUrlCompressor;
 import org.w3c.dom.Text;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import utils.Crypt;
+import utils.DataDron;
+import utils.Mission;
+import utils.MissionPosition;
 
 
 public class ibriActivity extends AppCompatActivity implements LocationListener {
@@ -60,12 +75,13 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
     static String serverport = "";
     static String password = "";
-    static String droneId = "";
+    static int droneId = 0;
     static String base64Photo = "";
 
     static double latitude = 0.0;
     static double longitude = 0.0;
     private SurfaceTexture mPreviewSurfaceTexture;
+    static Mission mission = null;
 
 
     @Override
@@ -78,11 +94,10 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         serverport = (String) String.valueOf(tv.getText());
 
         TextView di = (TextView)findViewById(R.id.droneID);
-        droneId = (String) String.valueOf(di.getText());
+        droneId = Integer.parseInt(di.getText().toString());
 
         TextView pass = (TextView)findViewById(R.id.sharedPass);
         password = (String) String.valueOf(pass.getText());
-
 
 
         log = (TextView)findViewById(R.id.logView);
@@ -196,15 +211,20 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         serverport = (String) String.valueOf(tv.getText());
         TextView pass = (TextView)findViewById(R.id.sharedPass);
         password = (String) String.valueOf(pass.getText());
-        
+        TextView di = (TextView)findViewById(R.id.droneID);
+        droneId = Integer.parseInt(di.getText().toString());
+
         serverIntent = new Intent(this, ibriService.class);
         startService(this.serverIntent);
         registerReceiver(receiver, new IntentFilter(ibriService.BROADCAST_ACTION));
 
         Button stopButton = (Button)findViewById(R.id.endService);
         Button startButton = (Button)findViewById(R.id.startService);
-        stopButton.setEnabled(true);
-        startButton.setEnabled(false);
+
+        stopButton.setVisibility(View.VISIBLE);
+        startButton.setVisibility(View.GONE);
+        //stopButton.setEnabled(true);
+        //startButton.setEnabled(false);
 
     }
 
@@ -213,9 +233,15 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         unregisterReceiver(receiver);
         Button stopButton = (Button)findViewById(R.id.endService);
         Button startButton = (Button)findViewById(R.id.startService);
-        stopButton.setEnabled(false);
-        startButton.setEnabled(true);
+
+
+        stopButton.setVisibility(View.GONE);
+        startButton.setVisibility(View.VISIBLE);
+        //stopButton.setEnabled(false);
+        //startButton.setEnabled(true);
     }
+
+
 
     @Override
     public void onLocationChanged(Location location) {
@@ -223,14 +249,79 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         this.latitude = location.getLatitude();
         this.longitude = location.getLongitude();
 
+        Log.d("LOCATION", this.latitude+" -- "+this.longitude);
+        setTrack(this.latitude, this.longitude);
 
-        /*float[] results = new float[1];
-        Location.distanceBetween(28.4815393,-16.321767, location.getLatitude(), location.getLongitude(), results);
-        float distanceInMeters = results[0];
-        Log.d("DISTANCIA", distanceInMeters+"");
-        boolean isInRange = distanceInMeters <= 10;
-        Log.d("DISTANCIA", isInRange+"");
-        */
+
+    }
+
+    private void setTrack(double latitude, double longitude) {
+
+        RequestQueue queue = Volley.newRequestQueue(this); // this = context
+        String url ="http://"+this.serverport+"/setDroneTracking/";
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("Voley Response", response);
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<String, String>();
+
+                Crypt aesCrypt = Crypt.getInstance(ibriActivity.password);
+                DataDron data = new DataDron();
+
+                data.missionId = mission.missionId;
+                data.latitude = ibriActivity.latitude;
+                data.longitude = ibriActivity.longitude;
+                data.droneId = ibriActivity.droneId;
+                data.beacon = "";
+                data.photo = "";
+
+                Gson gson = new Gson();
+                String str = gson.toJson(data);
+                Log.d("STR CIF", str);
+                String c = null;
+
+                try {
+                    c = aesCrypt.encrypt_string(str);
+                } catch (Exception e){
+
+                }
+
+                params.put("info", c);
+
+                return params;
+
+            }
+        };
+        queue.add(postRequest);
+
+
+
+
+
+
+
+
+
+
+
 
     }
 

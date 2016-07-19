@@ -4,18 +4,19 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
@@ -30,7 +31,6 @@ import org.altbeacon.beacon.utils.UrlBeaconUrlCompressor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 import java.util.Collection;
@@ -39,12 +39,16 @@ import java.util.Map;
 
 import utils.Crypt;
 import utils.DataDron;
+import utils.Mission;
+import utils.MissionInsearch;
+import utils.MissionPosition;
 
 /**
  * Created by moises on 4/07/16.
  */
 
-public class ibriService extends Service implements RangeNotifier, BeaconConsumer {
+public class ibriService extends Service implements RangeNotifier, BeaconConsumer, LocationListener {
+
 
     BroadcastReceiver broadcaster;
     Intent intent;
@@ -53,6 +57,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
     private PowerManager.WakeLock mWakeLock;
     private BeaconManager mBeaconManager;
     public static Intent serviceIntent;
+
 
 
     @Override
@@ -67,7 +72,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
         super.onCreate();
 
         intent = new Intent(BROADCAST_ACTION);
-
+        ibriActivity.mission = new Mission();
 
 
 
@@ -104,11 +109,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
         // IBEACON AND ¿URI?
         mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("s:0-1=fed8,m:2-2=00,p:3-3:-41,i:4-21v"));
 
-
         mBeaconManager.bind(this);
-
-
-
 
 
 
@@ -182,12 +183,30 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
                         try {
 
                             JSONObject missionData = new JSONObject(jsonResponse);
+
+                            ibriActivity.mission.missionId = missionData.getInt("mid");
+
                             JSONArray positions =  missionData.getJSONArray("positions");
 
                             for(int i = 0; i < positions.length(); i++){
+                                MissionPosition tmpPos = new MissionPosition();
                                 JSONObject position = new JSONObject(positions.getString(i));
                                 Log.d("REC_LAT", String.valueOf(position.getDouble("lat")));
                                 Log.d("REC_LNG", String.valueOf(position.getDouble("lng")));
+                                tmpPos.setLat(position.getDouble("lat"));
+                                tmpPos.setLng(position.getDouble("lng"));
+                                ibriActivity.mission.positions.add(tmpPos);
+
+                            }
+
+                            JSONArray insearch =  missionData.getJSONArray("insearch");
+
+                            for(int i = 0; i < insearch.length(); i++){
+                                MissionInsearch tmpIn = new MissionInsearch();
+                                JSONObject physicalCode = new JSONObject(insearch.getString(i));
+                                Log.d("PhysicalWeb Beacon: ", physicalCode.getString("physicalCode"));
+                                tmpIn.setPhysicalWeb(physicalCode.getString("physicalCode"));
+                                ibriActivity.mission.inSearch.add(tmpIn);
                             }
 
 
@@ -197,10 +216,12 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                     }
                 }, new Response.ErrorListener() {
+
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("ERROR GETTING DATA","That didn't work!");
+                Log.d("ErrorGettingData","Is the url ok?");
             }
+
         });
 
         // Add the request to the RequestQueue.
@@ -239,9 +260,46 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                 Crypt aesCrypt = Crypt.getInstance(ibriActivity.password);
                 DataDron data = new DataDron();
+
+                data.missionId = ibriActivity.mission.missionId;
                 data.latitude = lat;
                 data.longitude = lng;
+                data.droneId = ibriActivity.droneId;
                 data.beacon = beaconUrl;
+
+                if(lat != 0 && lng != 0){
+                    int tmpCounter = 0;
+                    float tmpDistance = Float.MAX_VALUE;
+                    for(MissionPosition mp: ibriActivity.mission.positions){
+
+                        float[] results = new float[1];
+                        Location.distanceBetween(mp.getLat(), mp.getLng(), lat, lng, results);
+
+                        if(results[0] < tmpDistance){
+                            tmpDistance = results[0];
+                            data.nearpoint = tmpCounter;
+                            data.nearLat = mp.getLat();
+                            data.nearLng = mp.getLng();
+                        }
+
+                        tmpCounter++;
+
+                    }
+
+                }
+
+
+
+                while(ibriActivity.base64Photo.equals("")){
+                    try {
+                        Thread.sleep(500);
+                        Log.d("Service", "Waiting for base64Photo...");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                data.photo = ibriActivity.base64Photo;
                 Gson gson = new Gson();
                 String str = gson.toJson(data);
                 Log.d("STR CIF", str);
@@ -270,6 +328,30 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
             if (beacon.getServiceUuid() == 0xfeaa || beacon.getServiceUuid() == 0xfed8) { // Eddystone || URIbeacon
 
                 String url = UrlBeaconUrlCompressor.uncompress(beacon.getId1().toByteArray());
+
+                for(MissionInsearch missionInsearch : ibriActivity.mission.inSearch){
+
+                    Log.d("URLs", missionInsearch.getPhysicalWeb()+" -- "+url);
+
+                    //if(missionInsearch.getPhysicalWeb() == url){
+                    if(missionInsearch.getPhysicalWeb().equals(url)){
+
+                        DecimalFormat df = new DecimalFormat("##.###");
+                        String sendString = "Beacon! "+url+"\n";
+                        sendString += beacon.getBluetoothAddress()+"\n";
+                        sendString += df.format(beacon.getDistance())+"m away\n";
+                        sendString += "near "+ibriActivity.latitude+", "+ibriActivity.longitude+"\n";
+                        sendString += "---------------------------------------------------------------------------------------";
+                        sendResult(sendString);
+                        Log.d("BeaconScan", sendString);
+                        sendData(url, ibriActivity.latitude, ibriActivity.longitude);
+
+                    }
+
+                }
+
+
+                /*String url = UrlBeaconUrlCompressor.uncompress(beacon.getId1().toByteArray());
                 DecimalFormat df = new DecimalFormat("##.###");
                 String sendString = "Beacon! "+url+"\n";
                 sendString += beacon.getBluetoothAddress()+"\n";
@@ -280,9 +362,8 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                 Log.d("BeaconScan", sendString);
 
-
                 sendData(url, ibriActivity.latitude, ibriActivity.longitude);
-
+                */
 
             }
 
@@ -293,4 +374,25 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+
+
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
 }

@@ -15,4 +15,9 @@ public class MissionInsearch {
         PhysicalWeb = physicalWeb;
     }
 
+    @Override
+    public String toString() {
+        return "MissionInsearch {"+this.getPhysicalWeb()+"}";
+    }
+
 }
