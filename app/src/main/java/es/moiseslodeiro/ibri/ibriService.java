@@ -167,12 +167,12 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
 
                         Log.d("DATA", response.toString());
-                        String respuesta = "";
+                        String jsonResponse = "";
                         Crypt aesCrypt = Crypt.getInstance(ibriActivity.password);
 
                         try {
-                            respuesta = aesCrypt.decrypt_string(response);
-                            Log.d("Response", respuesta);
+                            jsonResponse = aesCrypt.decrypt_string(response);
+                            Log.d("Response", jsonResponse);
 
                         } catch (Exception e){
 
@@ -181,15 +181,13 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                         try {
 
-                            JSONObject jo = new JSONObject(respuesta);
+                            JSONObject missionData = new JSONObject(jsonResponse);
+                            JSONArray positions =  missionData.getJSONArray("positions");
 
-                            JSONArray jx =  jo.getJSONArray("positions");
-
-
-                            for(int i = 0; i < jx.length(); i++){
-                                JSONObject ja = new JSONObject(jx.getString(i)); //jx.getJSONObject(i);
-                                Log.d("REC_LAT", String.valueOf(ja.getDouble("lat")));
-                                Log.d("REC_LNG", String.valueOf(ja.getDouble("lng")));
+                            for(int i = 0; i < positions.length(); i++){
+                                JSONObject position = new JSONObject(positions.getString(i));
+                                Log.d("REC_LAT", String.valueOf(position.getDouble("lat")));
+                                Log.d("REC_LNG", String.valueOf(position.getDouble("lng")));
                             }
 
 
@@ -204,7 +202,9 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
                 Log.d("ERROR GETTING DATA","That didn't work!");
             }
         });
+
         // Add the request to the RequestQueue.
+
         queue.add(stringRequest);
 
     }
