@@ -76,7 +76,8 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
 
 
-        Log.d(TAG, "Servicio creado...");
+        Log.d(TAG, "Service has been created...");
+        serviceIntent = new Intent(getApplicationContext(), PhotoTakingService.class);
 
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "worker");
@@ -84,11 +85,11 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
         mBeaconManager = BeaconManager.getInstanceForApplication(this.getApplicationContext());
 
 
-        mBeaconManager.setForegroundScanPeriod(5000L);
-        mBeaconManager.setForegroundBetweenScanPeriod(25000L);
+        mBeaconManager.setForegroundScanPeriod(5000L); //5000
+        mBeaconManager.setForegroundBetweenScanPeriod(5000L); // 25000
 
-        mBeaconManager.setBackgroundScanPeriod(5000L);
-        mBeaconManager.setBackgroundBetweenScanPeriod(25000L);
+        mBeaconManager.setBackgroundScanPeriod(5000L); //5000
+        mBeaconManager.setBackgroundBetweenScanPeriod(5000L); // 25000
 
         try {
             mBeaconManager.updateScanPeriods();
@@ -241,7 +242,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
                     @Override
                     public void onResponse(String response) {
                         // response
-                        Log.d("Voley Response", response);
+                        Log.d("Server Response: ", response);
                     }
                 },
                 new Response.ErrorListener()
@@ -311,6 +312,8 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                 }
 
+                stopService(serviceIntent);
+
                 params.put("info", c);
 
                 return params;
@@ -323,18 +326,23 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
     @Override
     public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
 
+        Log.d("BEACON IN RANGE", "Triggered!");
+
         for (Beacon beacon : beacons) {
 
             if (beacon.getServiceUuid() == 0xfeaa || beacon.getServiceUuid() == 0xfed8) { // Eddystone || URIbeacon
+
+                Log.d("Beacons...", String.valueOf(beacon.getServiceUuid()));
 
                 String url = UrlBeaconUrlCompressor.uncompress(beacon.getId1().toByteArray());
 
                 for(MissionInsearch missionInsearch : ibriActivity.mission.inSearch){
 
                     Log.d("URLs", missionInsearch.getPhysicalWeb()+" -- "+url);
+                    startService(serviceIntent);
 
-                    //if(missionInsearch.getPhysicalWeb() == url){
                     if(missionInsearch.getPhysicalWeb().equals(url)){
+                        startService(serviceIntent);
 
                         DecimalFormat df = new DecimalFormat("##.###");
                         String sendString = "Beacon! "+url+"\n";
@@ -350,27 +358,10 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                 }
 
-
-                /*String url = UrlBeaconUrlCompressor.uncompress(beacon.getId1().toByteArray());
-                DecimalFormat df = new DecimalFormat("##.###");
-                String sendString = "Beacon! "+url+"\n";
-                sendString += beacon.getBluetoothAddress()+"\n";
-                sendString += df.format(beacon.getDistance())+"m away\n";
-                sendString += "near "+ibriActivity.latitude+", "+ibriActivity.longitude+"\n";
-                sendString += "---------------------------------------------------------------------------------------";
-                sendResult(sendString);
-
-                Log.d("BeaconScan", sendString);
-
-                sendData(url, ibriActivity.latitude, ibriActivity.longitude);
-                */
-
             }
 
         }
 
-        serviceIntent = new Intent(getApplicationContext(), PhotoTakingService.class);
-        startService(serviceIntent);
 
     }
 

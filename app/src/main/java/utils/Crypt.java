@@ -81,12 +81,12 @@ public class Crypt {
             BadPaddingException, IOException {
 
         keyBytes = key.getBytes("UTF-8");
-        Log.d(tag,"Long KEY: "+keyBytes.length);
+        //Log.d(tag,"Long KEY: "+keyBytes.length);
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(keyBytes);
         keyBytes = md.digest();
 
-        Log.d(tag,"Long KEY: "+keyBytes.length);
+        //Log.d(tag,"Long KEY: "+keyBytes.length);
 
         AlgorithmParameterSpec ivSpec = new IvParameterSpec(ivBytes);
         SecretKeySpec newKey = new SecretKeySpec(keyBytes, aesEncryptionAlgorithm);

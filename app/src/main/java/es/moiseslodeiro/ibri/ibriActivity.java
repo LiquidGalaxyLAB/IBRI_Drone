@@ -249,7 +249,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         this.latitude = location.getLatitude();
         this.longitude = location.getLongitude();
 
-        Log.d("LOCATION", this.latitude+" -- "+this.longitude);
+        //Log.d("LOCATION", this.latitude+" -- "+this.longitude);
         setTrack(this.latitude, this.longitude);
 
 
@@ -293,9 +293,37 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
                 data.beacon = "";
                 data.photo = "";
 
+
+                int tmpCounter = 0;
+                float tmpDistance = Float.MAX_VALUE;
+
+                for(MissionPosition mp: ibriActivity.mission.positions){
+
+                    //Log.d("GPSPoint", mp.getLat()+","+mp.getLng()+" --- "+data.latitude+","+data.longitude);
+
+                    float[] results = new float[1];
+                    Location.distanceBetween(mp.getLat(), mp.getLng(), data.latitude, data.longitude, results);
+
+                    //Log.d("Difference:", ""+results[0]);
+
+                    if(results[0] < tmpDistance){
+                        tmpDistance = results[0];
+
+                        if(results[0] < 10) { // 10m and acuracy of 5m...
+                            data.nearpoint = tmpCounter;
+                            data.nearLat = mp.getLat();
+                            data.nearLng = mp.getLng();
+                        }
+
+                    }
+
+                    tmpCounter++;
+
+                }
+
                 Gson gson = new Gson();
                 String str = gson.toJson(data);
-                Log.d("STR CIF", str);
+                //Log.d("STR CIF", str);
                 String c = null;
 
                 try {

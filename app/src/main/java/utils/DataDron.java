@@ -12,7 +12,7 @@ public class DataDron {
 
     public double nearLat = 0.0;
     public double nearLng = 0.0;
-    public int nearpoint = 0;
+    public int nearpoint = -1;
 
     public String photo = "";
     public String beacon = "";
