@@ -147,7 +147,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
                 return;
             }
             //locationManager.requestLocationUpdates(provider, 20000, 1, this);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, this);
 
             if(location!=null)
                 onLocationChanged(location);
