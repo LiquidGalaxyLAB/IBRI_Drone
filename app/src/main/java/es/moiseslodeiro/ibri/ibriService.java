@@ -85,8 +85,8 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
         mBeaconManager = BeaconManager.getInstanceForApplication(this.getApplicationContext());
 
 
-        mBeaconManager.setForegroundScanPeriod(5000L); //5000
-        mBeaconManager.setForegroundBetweenScanPeriod(5000L); // 25000
+        //mBeaconManager.setForegroundScanPeriod(5000L); //5000
+        //mBeaconManager.setForegroundBetweenScanPeriod(5000L); // 25000
 
         mBeaconManager.setBackgroundScanPeriod(5000L); //5000
         mBeaconManager.setBackgroundBetweenScanPeriod(5000L); // 25000
@@ -111,6 +111,9 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
         mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("s:0-1=fed8,m:2-2=00,p:3-3:-41,i:4-21v"));
 
         mBeaconManager.bind(this);
+
+
+        //mBeaconManager.setBackgroundMode(true);
 
 
 
@@ -224,7 +227,14 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
             public void onErrorResponse(VolleyError error) {
                 sendResult("Error connecting.. trying again!");
                 Log.d("ErrorGettingData","Is the url ok?");
-                getData();
+
+                try {
+                    Thread.sleep(1000);
+                    getData();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
             }
 
         });
@@ -332,7 +342,9 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
         Log.d("BEACON IN RANGE", "Triggered!");
 
+        //Log.d("Detected?", String.valueOf(beacons));
 
+        Log.d("BEACON_SIZE", beacons.size()+"" );
 
         for (Beacon beacon : beacons) {
 
@@ -341,6 +353,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
                 Log.d("Beacons...", String.valueOf(beacon.getServiceUuid()));
 
                 String url = UrlBeaconUrlCompressor.uncompress(beacon.getId1().toByteArray());
+                Log.d("DetectedURL", url);
 
                 for (MissionInsearch missionInsearch : ibriActivity.mission.inSearch) {
 
