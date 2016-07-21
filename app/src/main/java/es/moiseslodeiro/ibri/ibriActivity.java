@@ -309,7 +309,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
                     if(results[0] < tmpDistance){
                         tmpDistance = results[0];
 
-                        if(results[0] < 10) { // 10m and acuracy of 5m...
+                        if(results[0] < 15) { // 10m and acuracy of 5m...
                             data.nearpoint = tmpCounter;
                             data.nearLat = mp.getLat();
                             data.nearLng = mp.getLng();

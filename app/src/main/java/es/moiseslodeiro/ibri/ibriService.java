@@ -192,20 +192,22 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
                             for(int i = 0; i < positions.length(); i++){
                                 MissionPosition tmpPos = new MissionPosition();
                                 JSONObject position = new JSONObject(positions.getString(i));
-                                Log.d("REC_LAT", String.valueOf(position.getDouble("lat")));
-                                Log.d("REC_LNG", String.valueOf(position.getDouble("lng")));
+                                //Log.d("REC_LAT", String.valueOf(position.getDouble("lat")));
+                                //Log.d("REC_LNG", String.valueOf(position.getDouble("lng")));
                                 tmpPos.setLat(position.getDouble("lat"));
                                 tmpPos.setLng(position.getDouble("lng"));
                                 ibriActivity.mission.positions.add(tmpPos);
 
                             }
 
+                            sendResult("Connected!");
+
                             JSONArray insearch =  missionData.getJSONArray("insearch");
 
                             for(int i = 0; i < insearch.length(); i++){
                                 MissionInsearch tmpIn = new MissionInsearch();
                                 JSONObject physicalCode = new JSONObject(insearch.getString(i));
-                                Log.d("PhysicalWeb Beacon: ", physicalCode.getString("physicalCode"));
+                                Log.d("PhysicalWeb Insearch: ", physicalCode.getString("physicalCode"));
                                 tmpIn.setPhysicalWeb(physicalCode.getString("physicalCode"));
                                 ibriActivity.mission.inSearch.add(tmpIn);
                             }
@@ -220,7 +222,9 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
             @Override
             public void onErrorResponse(VolleyError error) {
+                sendResult("Error connecting.. trying again!");
                 Log.d("ErrorGettingData","Is the url ok?");
+                getData();
             }
 
         });
@@ -328,6 +332,8 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
         Log.d("BEACON IN RANGE", "Triggered!");
 
+
+
         for (Beacon beacon : beacons) {
 
             if (beacon.getServiceUuid() == 0xfeaa || beacon.getServiceUuid() == 0xfed8) { // Eddystone || URIbeacon
@@ -336,19 +342,19 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                 String url = UrlBeaconUrlCompressor.uncompress(beacon.getId1().toByteArray());
 
-                for(MissionInsearch missionInsearch : ibriActivity.mission.inSearch){
+                for (MissionInsearch missionInsearch : ibriActivity.mission.inSearch) {
 
-                    Log.d("URLs", missionInsearch.getPhysicalWeb()+" -- "+url);
+                    Log.d("URLs", missionInsearch.getPhysicalWeb() + " -- " + url);
                     startService(serviceIntent);
 
-                    if(missionInsearch.getPhysicalWeb().equals(url)){
+                    if (missionInsearch.getPhysicalWeb().equals(url)) {
                         startService(serviceIntent);
 
                         DecimalFormat df = new DecimalFormat("##.###");
-                        String sendString = "Beacon! "+url+"\n";
-                        sendString += beacon.getBluetoothAddress()+"\n";
-                        sendString += df.format(beacon.getDistance())+"m away\n";
-                        sendString += "near "+ibriActivity.latitude+", "+ibriActivity.longitude+"\n";
+                        String sendString = "Beacon! " + url + "\n";
+                        sendString += beacon.getBluetoothAddress() + "\n";
+                        sendString += df.format(beacon.getDistance()) + "m away\n";
+                        sendString += "near " + ibriActivity.latitude + ", " + ibriActivity.longitude + "\n";
                         sendString += "---------------------------------------------------------------------------------------";
                         sendResult(sendString);
                         Log.d("BeaconScan", sendString);
@@ -358,6 +364,8 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                 }
 
+            }else{
+                Log.d("BEACON ERROR", ""+beacon.getServiceUuid());
             }
 
         }
