@@ -28,7 +28,7 @@
         </service>
 
         <service
-            android:name=".PhotoTakingService"
+            android:name=".ibriPhotoService"
             android:enabled="true"
             android:exported="false" >
         </service>

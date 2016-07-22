@@ -3,7 +3,8 @@ package es.moiseslodeiro.ibri;
 import java.util.ArrayList;
 
 /**
- * Created by moises on 19/07/16.
+ * The Mission class is a representation to a Mission Object
+ * @author Moisés Lodeiro Santiago
  */
 public class Mission {
 

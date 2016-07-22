@@ -243,7 +243,6 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         }
     }
 
-
     /**
      * Start service.
      * This function starts the service that is used to connect to the HTTP server
@@ -267,7 +266,6 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
         stopButton.setVisibility(View.VISIBLE);
         startButton.setVisibility(View.GONE);
-
 
     }
 

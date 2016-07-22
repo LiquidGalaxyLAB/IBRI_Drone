@@ -1,5 +1,8 @@
 package es.moiseslodeiro.ibri;
 
+/**
+ * Native Android Libraries
+ */
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +21,9 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 
+/**
+ * Java Utils
+ */
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,15 +33,54 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Takes a single photo on service start.
+ * The ibriPhotoService class is a service that runs in background. It allows to open the smartphone
+ * camera and take a photo when a insearch beacon is detected. Then, the photo is stored in the
+ * smartphone and also it is converted to a base64 and saved in the ibriActivity.
+ * @author Moisés Lodeiro Santiago
+ * @see Camera
+ * @see Base64
  */
-public class PhotoTakingService extends Service {
+
+public class ibriPhotoService extends Service {
 
     /**
-     * The Foto.
+     * The Foto in byte array format
      */
     static byte[] foto;
 
+
+    /* Photo Size Table (width height)
+        D/SIZE:: 2592w  1944h
+        D/SIZE:: 2048w  1536h
+        D/SIZE:: 1920w  1080h
+        D/SIZE:: 1600w  1200h
+        D/SIZE:: 1280w  768h
+        D/SIZE:: 1280w  720h
+        D/SIZE:: 1024w  768h
+        D/SIZE:: 800w  600h
+        D/SIZE:: 800w  480h
+        D/SIZE:: 720w  480h
+        D/SIZE:: 640w  480h
+        D/SIZE:: 352w  288h
+        D/SIZE:: 320w  240h
+        D/SIZE:: 176w  144h
+    */
+
+    /**
+     * Photo Width
+     * See the column row of the table above
+     */
+    final int photoWidth = 640;
+
+    /**
+     * Photo Height
+     * see the second column of the table above
+     */
+    final int photoHeight = 480;
+
+    /**
+     * When the service is created, a photo is taken
+     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -48,6 +93,10 @@ public class PhotoTakingService extends Service {
         return null;
     }
 
+    /**
+     * The take photo method takes the photo from the front camera and stores it in the smartphone
+     * @param context
+     */
     @SuppressWarnings("deprecation")
     private static void takePhoto(final Context context) {
         final SurfaceView preview = new SurfaceView(context);
@@ -72,26 +121,9 @@ public class PhotoTakingService extends Service {
 
                     Camera.Size mSize = null;
 
-                    /*
-                    D/SIZE:: 2592w  1944
-                    D/SIZE:: 2048w  1536
-                    D/SIZE:: 1920w  1080
-                    D/SIZE:: 1600w  1200
-                    D/SIZE:: 1280w  768
-                    D/SIZE:: 1280w  720
-                    D/SIZE:: 1024w  768
-                    D/SIZE:: 800w  600
-                    D/SIZE:: 800w  480
-                    D/SIZE:: 720w  480
-                    D/SIZE:: 640w  480
-                    D/SIZE:: 352w  288
-                    D/SIZE:: 320w  240
-                    D/SIZE:: 176w  144
-                     */
-
                     for(Camera.Size s : sizes){
 
-                        if(s.width <= 640 && s.height <= 480){
+                        if(s.width <= photoWidth && s.height <= photoHeight){
                             mSize = s;
                             break;
                         }
@@ -108,8 +140,6 @@ public class PhotoTakingService extends Service {
 
                     camera.startPreview();
                     showMessage("Started preview");
-
-
 
                     camera.takePicture(null, null, new PictureCallback() {
 
@@ -137,8 +167,7 @@ public class PhotoTakingService extends Service {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 1, 1, //Must be at least 1x1
                 WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-                0,
-                //Don't know if this is a safe default
+                0, //Don't know if this is a safe default
                 PixelFormat.UNKNOWN);
 
         //Don't set the preview visibility to GONE or INVISIBLE
@@ -150,7 +179,7 @@ public class PhotoTakingService extends Service {
     }
 
     /**
-     * The type Save photo task.
+     * The SavePhotoTask is used to save the photo in a background process
      */
     static class SavePhotoTask extends AsyncTask<byte[], String, String> {
 
@@ -201,9 +230,6 @@ public class PhotoTakingService extends Service {
 
                 numPhoto++;
 
-                //BufferedWriter out = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory()+"/texto.txt"));
-                //out.write(ibriActivity.base64Photo);
-                //out.close();
 
         }
 

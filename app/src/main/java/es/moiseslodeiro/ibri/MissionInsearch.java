@@ -1,7 +1,8 @@
 package es.moiseslodeiro.ibri;
 
 /**
- * Created by moises on 19/07/16.
+ * The MissionInsearch is a representation of the persons that are in search
+ * @author Moisés Lodeiro Santiago
  */
 public class MissionInsearch {
 
