@@ -1,10 +1,5 @@
 package es.moiseslodeiro.ibri;
 
-/*
- *
- */
-
-
 /**
  * Native Android Libraries
  */
@@ -72,51 +67,72 @@ import utils.Crypt;
 public class ibriActivity extends AppCompatActivity implements LocationListener {
 
     /**
-     * Static Variables
+     * TAG_D Used to debug messages
+     */
+
+    final String TAG_D = "ibriActivity::";
+
+    /**
+     * Gps Meters triggers the locationListener event when the distance changes
+     * @see LocationListener
+     * @see LocationManager
+     */
+    static int gpsMeters = 10; // 10 metes
+    /**
+     * GPS Acuracity is the acuracity that is used to determinate if the drone is near a point using
+     * that acuracity.
+     */
+    static int gpsAcuracity = 15; // 15 meters
+    /**
+     * Gps Time triggers the locationListener event when the time pass
+     * @see LocationListener
+     */
+    static int gpsTime = 10000; // 10 seconds (10.000 milliseconds)
+    /**
+     * Serverport is represented with an URL:PORT (without the http:// protocol)
+     * Example: ibri.moiseslodeiro.es:80
      */
     static String serverport = "";
     /**
-     * The Password.
+     * The Password variable is used to store the TextView password field
      */
     static String password = "";
     /**
-     * The Base 64 photo.
+     * The Base64photo is used to save the representation of a base64 photo that is taken by the
+     * smartphone
      */
     static String base64Photo = "";
     /**
-     * The Drone id.
+     * The Drone id to communicate with the server
      */
     static int droneId = 0;
     /**
-     * The Latitude.
+     * The Latitude of the drone
      */
     static double latitude = 0.0;
     /**
-     * The Longitude.
+     * The Longitude of the drone
      */
     static double longitude = 0.0;
     /**
-     * The Mission.
+     * The Mission representation
+     * @see Mission
      */
     static Mission mission = null;
-
     /**
-     * Final Variables
+     * Request code ask permissions is neccesary to request code permissions
      */
-
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-
     /**
-     * Local and private vars
+     * Server Intent manages the background service that is used to communicate to the server
      */
-
     private Intent serverIntent;
     /**
-     * The Log.
+     * The Log is used to display the log on the main screen
      */
     TextView log;
     /**
-     * The Receiver.
+     * The Receiver
      */
     BroadcastReceiver receiver;
     /**
@@ -131,8 +147,9 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
     //----------------------------------------------------------------------------------------------
 
     /**
+     * onCreate is executed when the instance is created. Sets the serverport, droneid and password
+     * variables and ask to the permission request to the user.
      * @author Moisés Lodeiro Santiago
-     *
      * @param savedInstanceState
      * @see Bundle
      * @see TextView
@@ -142,30 +159,25 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ibri_layout);
 
-
         TextView tv = (TextView)findViewById(R.id.serverport);
         serverport = String.valueOf(tv.getText());
-
         TextView di = (TextView)findViewById(R.id.droneID);
         droneId = Integer.parseInt(di.getText().toString());
-
         TextView pass = (TextView)findViewById(R.id.sharedPass);
         password = String.valueOf(pass.getText());
-
-
         log = (TextView)findViewById(R.id.logView);
         log.setMovementMethod(new ScrollingMovementMethod());
+
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-
                 String msg = intent.getStringExtra("message");
                 String tmpTxt = ""+log.getText();
                 log.setText(msg+"\n"+tmpTxt);
-
             }
         };
 
@@ -182,63 +194,50 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
             // Get the location from the given provider
             Location location = locationManager.getLastKnownLocation(provider);
-
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Log.d("ERROR:","Error retreiving gps perms");
+                Log.d(TAG_D, "Error retreiving gps perms");
                 return;
             }
-            //locationManager.requestLocationUpdates(provider, 20000, 1, this);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, this);
 
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ibriActivity.gpsTime, ibriActivity.gpsMeters, this);
             if(location!=null)
                 onLocationChanged(location);
             else
                 Toast.makeText(getBaseContext(), "Location can't be retrieved", Toast.LENGTH_SHORT).show();
 
-        }else{
-            Toast.makeText(getBaseContext(), "No Provider Found", Toast.LENGTH_SHORT).show();
         }
 
     }
 
-
-
-
     @Override
     public void onResume() {
         super.onResume();
-
-        /*erviceIntent = new Intent(getApplicationContext(),
-                ibriService.class);
-        startService(erviceIntent);*/
-
-        //registerReceiver(receiver, new IntentFilter(
-        //        ibriService.BROADCAST_ACTION));
-
     }
-
 
     @Override
     public void onPause() {
         super.onPause();
-
-        //unregisterReceiver(receiver);
     }
 
-
-
+    /**
+     * onRequestPermissionsResults
+     * Is triggered when the GPS permission is required
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
+
             case REQUEST_CODE_ASK_PERMISSIONS:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission Granted
-                    Log.d("GPS_PERMS", "GPS PERMISSION HAS BEEN GRANTED");
+                    Log.d(TAG_D+"Perms", "GPS permission has been granted :-)");
                 } else {
-                    // Permission Denied
                     Toast.makeText(ibriActivity.this, "ACCESS_FINE_LOCATION Denied", Toast.LENGTH_SHORT).show();
                 }
                 break;
+
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
@@ -247,7 +246,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
     /**
      * Start service.
-     *
+     * This function starts the service that is used to connect to the HTTP server
      * @param view the view
      */
     public void startService(View view) {
@@ -268,14 +267,13 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
         stopButton.setVisibility(View.VISIBLE);
         startButton.setVisibility(View.GONE);
-        //stopButton.setEnabled(true);
-        //startButton.setEnabled(false);
+
 
     }
 
     /**
      * Stop service.
-     *
+     * This method is used to stop the service
      * @param view the view
      */
     public void stopService(View view) {
@@ -283,28 +281,27 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         unregisterReceiver(receiver);
         Button stopButton = (Button)findViewById(R.id.endService);
         Button startButton = (Button)findViewById(R.id.startService);
-
-
         stopButton.setVisibility(View.GONE);
         startButton.setVisibility(View.VISIBLE);
-        //stopButton.setEnabled(false);
-        //startButton.setEnabled(true);
+
     }
 
-
-
+    /**
+     * The onloncationchanged is triggered when gps detects a change of coordinates
+     * @param location
+     */
     @Override
     public void onLocationChanged(Location location) {
-
         latitude = location.getLatitude();
         longitude = location.getLongitude();
-
-        //Log.d("LOCATION", this.latitude+" -- "+this.longitude);
         setTrack(latitude, longitude);
-
-
     }
 
+    /**
+     * Set the new track to the HTTP server
+     * @param latitude
+     * @param longitude
+     */
     private void setTrack(double latitude, double longitude) {
 
         RequestQueue queue = Volley.newRequestQueue(this); // this = context
@@ -315,8 +312,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
                 {
                     @Override
                     public void onResponse(String response) {
-                        // response
-                        Log.d("Voley Response", response);
+                        Log.d(TAG_D+"Response", response);
                     }
                 },
                 new Response.ErrorListener()
@@ -324,7 +320,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.toString());
+                        Log.d(TAG_D+"Response", error.toString());
                     }
                 }
         ) {
@@ -349,22 +345,22 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
                 for(MissionPosition mp: ibriActivity.mission.positions){
 
-                    //Log.d("GPSPoint", mp.getLat()+","+mp.getLng()+" --- "+data.latitude+","+data.longitude);
+
+                    Log.d(TAG_D+"GPSPoint", mp.getLat()+","+mp.getLng()+" --- "+data.latitude+","+data.longitude);
 
                     float[] results = new float[1];
                     Location.distanceBetween(mp.getLat(), mp.getLng(), data.latitude, data.longitude, results);
 
-                    //Log.d("Difference:", ""+results[0]);
+                    Log.d(TAG_D+"Dif", ""+results[0]);
 
                     if(results[0] < tmpDistance){
                         tmpDistance = results[0];
 
-                        if(results[0] < 15) { // 10m and acuracy of 5m...
+                        if(results[0] < gpsAcuracity) {
                             data.nearpoint = tmpCounter;
                             data.nearLat = mp.getLat();
                             data.nearLng = mp.getLng();
                         }
-
                     }
 
                     tmpCounter++;
@@ -373,7 +369,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
                 Gson gson = new Gson();
                 String str = gson.toJson(data);
-                //Log.d("STR CIF", str);
+                Log.d(TAG_D+"STR CIF", str);
                 String c = null;
 
                 try {
@@ -389,17 +385,6 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
             }
         };
         queue.add(postRequest);
-
-
-
-
-
-
-
-
-
-
-
 
     }
 
