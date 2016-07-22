@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.IBinder;
@@ -15,23 +16,24 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import android.hardware.Camera.PictureCallback;
-import android.view.WindowManager;
-
-/** Takes a single photo on service start. */
+/**
+ * Takes a single photo on service start.
+ */
 public class PhotoTakingService extends Service {
 
+    /**
+     * The Foto.
+     */
     static byte[] foto;
 
     @Override
@@ -147,6 +149,9 @@ public class PhotoTakingService extends Service {
         Log.i("Camera", message);
     }
 
+    /**
+     * The type Save photo task.
+     */
     static class SavePhotoTask extends AsyncTask<byte[], String, String> {
 
         private int numPhoto = 0;

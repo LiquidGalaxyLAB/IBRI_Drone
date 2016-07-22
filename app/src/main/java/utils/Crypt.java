@@ -1,31 +1,23 @@
 package utils;
 
+import android.annotation.SuppressLint;
+import android.util.Base64;
+
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.AlgorithmParameterSpec;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import java.security.SecureRandom;
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import java.util.Arrays;
-
-import android.annotation.SuppressLint;
-import android.location.Criteria;
-import android.util.Base64;
-import android.util.Log;
 
 @SuppressLint("NewApi")
 public class Crypt {
@@ -115,14 +107,14 @@ public class Crypt {
             BadPaddingException, IOException, ClassNotFoundException {
 
         keyBytes = key.getBytes("UTF-8");
-        Log.d(tag,"Long KEY: "+keyBytes.length);
+        //Log.d(tag,"Long KEY: "+keyBytes.length);
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(keyBytes);
         keyBytes = md.digest();
-        Log.d(tag,"Long KEY: "+keyBytes.length);
+        //Log.d(tag,"Long KEY: "+keyBytes.length);
 
         byte[] ivB = Arrays.copyOfRange(bytes,0,16);
-        Log.d(tag, "IV: "+new String(ivB));
+        //Log.d(tag, "IV: "+new String(ivB));
         byte[] codB = Arrays.copyOfRange(bytes,16,bytes.length);
 
 

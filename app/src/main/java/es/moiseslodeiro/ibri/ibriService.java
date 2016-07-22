@@ -38,24 +38,31 @@ import java.util.HashMap;
 import java.util.Map;
 
 import utils.Crypt;
-import utils.DataDron;
-import utils.Mission;
-import utils.MissionInsearch;
-import utils.MissionPosition;
 
 /**
  * Created by moises on 4/07/16.
  */
-
 public class ibriService extends Service implements RangeNotifier, BeaconConsumer, LocationListener {
 
 
+    /**
+     * The Broadcaster.
+     */
     BroadcastReceiver broadcaster;
+    /**
+     * The Intent.
+     */
     Intent intent;
+    /**
+     * The Broadcast action.
+     */
     static final public String BROADCAST_ACTION = "es.moiseslodeiro.ibri";
     final private String TAG = "ibriService";
     private PowerManager.WakeLock mWakeLock;
     private BeaconManager mBeaconManager;
+    /**
+     * The constant serviceIntent.
+     */
     public static Intent serviceIntent;
 
 
@@ -135,11 +142,21 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
         Log.d(TAG, "Service destroyed...");
     }
 
+    /**
+     * Send result.
+     *
+     * @param message the message
+     */
     public void sendResult(String message) {
         intent.putExtra("message", message);
         sendBroadcast(intent);
     }
 
+    /**
+     * Show m sg.
+     *
+     * @param msg the msg
+     */
     public void showMSg(String msg) {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }

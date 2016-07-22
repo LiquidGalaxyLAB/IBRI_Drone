@@ -1,40 +1,39 @@
 package es.moiseslodeiro.ibri;
 
+/*
+ *
+ */
+
+
+/**
+ * Native Android Libraries
+ */
+
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCaptureSession;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-
-import android.view.Surface;
-import android.view.SurfaceView;
-import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * Third party Android libraries
+ * - Volley: Used to make POST request to the server
+ * - GSON: Used to implement Google JSON
+ */
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -44,46 +43,103 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
-import org.altbeacon.beacon.Beacon;
-import org.altbeacon.beacon.Identifier;
-import org.altbeacon.beacon.RangeNotifier;
-import org.altbeacon.beacon.Region;
-import org.altbeacon.beacon.utils.UrlBeaconUrlCompressor;
-import org.w3c.dom.Text;
+/**
+ * Java Utils
+ * - HashMap
+ * - Map
+ */
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ * Own Utils
+ * - Crypt: Used to crypt strings
+ */
+
 import utils.Crypt;
-import utils.DataDron;
-import utils.Mission;
-import utils.MissionPosition;
 
 
+/**
+ * The ibriActivity is the first executed class in the application. It loads the XML template
+ * and applies the main configuration to work with our HTTP server.
+ *
+ * @author Moisés Lodeiro Santiago
+ * @version 1
+ * @see AppCompatActivity
+ * @see LocationListener
+ */
 public class ibriActivity extends AppCompatActivity implements LocationListener {
 
-    private Intent serverIntent;
-    TextView log;
-    BroadcastReceiver receiver;
-    Intent serviceIntent;
-    LocationManager locationManager;
-    String provider;
-    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-
-
+    /**
+     * Static Variables
+     */
     static String serverport = "";
+    /**
+     * The Password.
+     */
     static String password = "";
-    static int droneId = 0;
+    /**
+     * The Base 64 photo.
+     */
     static String base64Photo = "";
-
+    /**
+     * The Drone id.
+     */
+    static int droneId = 0;
+    /**
+     * The Latitude.
+     */
     static double latitude = 0.0;
+    /**
+     * The Longitude.
+     */
     static double longitude = 0.0;
-    private SurfaceTexture mPreviewSurfaceTexture;
+    /**
+     * The Mission.
+     */
     static Mission mission = null;
 
+    /**
+     * Final Variables
+     */
 
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+
+    /**
+     * Local and private vars
+     */
+
+    private Intent serverIntent;
+    /**
+     * The Log.
+     */
+    TextView log;
+    /**
+     * The Receiver.
+     */
+    BroadcastReceiver receiver;
+    /**
+     * The Location manager.
+     */
+    LocationManager locationManager;
+    /**
+     * The Provider.
+     */
+    String provider;
+
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * @author Moisés Lodeiro Santiago
+     *
+     * @param savedInstanceState
+     * @see Bundle
+     * @see TextView
+     * @see BroadcastReceiver
+     * @see LocationManager
+     * @see Criteria
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,13 +147,13 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
 
         TextView tv = (TextView)findViewById(R.id.serverport);
-        serverport = (String) String.valueOf(tv.getText());
+        serverport = String.valueOf(tv.getText());
 
         TextView di = (TextView)findViewById(R.id.droneID);
         droneId = Integer.parseInt(di.getText().toString());
 
         TextView pass = (TextView)findViewById(R.id.sharedPass);
-        password = (String) String.valueOf(pass.getText());
+        password = String.valueOf(pass.getText());
 
 
         log = (TextView)findViewById(R.id.logView);
@@ -106,12 +162,9 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
             @Override
             public void onReceive(Context context, Intent intent) {
 
-                //String time = intent.getStringExtra("time");
                 String msg = intent.getStringExtra("message");
                 String tmpTxt = ""+log.getText();
                 log.setText(msg+"\n"+tmpTxt);
-
-                //log.append(counter+"\n");
 
             }
         };
@@ -122,8 +175,6 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         // Creating an empty criteria object
         Criteria criteria = new Criteria();
 
-        //requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASK_PERMISSIONS);
-
         // Getting the name of the provider that meets the criteria
         provider = locationManager.getBestProvider(criteria, false);
 
@@ -133,17 +184,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
             Location location = locationManager.getLastKnownLocation(provider);
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-
-
                 Log.d("ERROR:","Error retreiving gps perms");
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             //locationManager.requestLocationUpdates(provider, 20000, 1, this);
@@ -167,9 +208,9 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
     public void onResume() {
         super.onResume();
 
-        /*serviceIntent = new Intent(getApplicationContext(),
+        /*erviceIntent = new Intent(getApplicationContext(),
                 ibriService.class);
-        startService(serviceIntent);*/
+        startService(erviceIntent);*/
 
         //registerReceiver(receiver, new IntentFilter(
         //        ibriService.BROADCAST_ACTION));
@@ -181,7 +222,6 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
     public void onPause() {
         super.onPause();
 
-        //stopService(serviceIntent);
         //unregisterReceiver(receiver);
     }
 
@@ -205,12 +245,17 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
     }
 
 
+    /**
+     * Start service.
+     *
+     * @param view the view
+     */
     public void startService(View view) {
 
         TextView tv = (TextView)findViewById(R.id.serverport);
-        serverport = (String) String.valueOf(tv.getText());
+        serverport = String.valueOf(tv.getText());
         TextView pass = (TextView)findViewById(R.id.sharedPass);
-        password = (String) String.valueOf(pass.getText());
+        password = String.valueOf(pass.getText());
         TextView di = (TextView)findViewById(R.id.droneID);
         droneId = Integer.parseInt(di.getText().toString());
 
@@ -228,6 +273,11 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
 
     }
 
+    /**
+     * Stop service.
+     *
+     * @param view the view
+     */
     public void stopService(View view) {
         stopService(this.serverIntent);
         unregisterReceiver(receiver);
@@ -246,11 +296,11 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onLocationChanged(Location location) {
 
-        this.latitude = location.getLatitude();
-        this.longitude = location.getLongitude();
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
 
         //Log.d("LOCATION", this.latitude+" -- "+this.longitude);
-        setTrack(this.latitude, this.longitude);
+        setTrack(latitude, longitude);
 
 
     }
@@ -258,7 +308,7 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
     private void setTrack(double latitude, double longitude) {
 
         RequestQueue queue = Volley.newRequestQueue(this); // this = context
-        String url ="http://"+this.serverport+"/setDroneTracking/";
+        String url ="http://"+ serverport+"/setDroneTracking/";
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>()
