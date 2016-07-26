@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1"
+    android:background="#ffffff">
+
+
+    <ImageView
+        android:src="@drawable/ibri_logo"
+        android:layout_width="fill_parent"
+        android:layout_height="300px"
+        android:id="@+id/imageView"
+        android:layout_alignParentTop="true" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Service"
+        android:id="@+id/startService"
+        android:layout_below="@+id/imageView"
+        android:onClick="startService"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Service"
+        android:id="@+id/endService"
+        android:layout_below="@+id/startService"
+        android:onClick="stopService"
+        android:layout_alignParentStart="true"
+        android:visibility="gone" />
+
+    <View
+        android:layout_height="1px"
+        android:layout_width="fill_parent"
+        android:background="#000000"
+        android:layout_alignTop="@+id/logView"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp" />
+
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="133dp"
+        android:id="@+id/logView"
+        android:maxLines = "500"
+        android:scrollbars = "vertical"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/endService"
+        android:layout_below="@+id/endService"
+        android:paddingTop="15dp"
+        android:layout_weight="0.94" />
+
+    <View
+        android:layout_height="1px"
+        android:layout_width="fill_parent"
+        android:background="#000000"
+        android:layout_alignTop="@+id/logView"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Server:Port"
+                android:id="@+id/textView" />
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/serverport"
+                android:layout_marginRight="2dp"
+                android:text="10.213.6.126:80"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Password"
+                android:id="@+id/textView2" />
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:ems="10"
+                android:id="@+id/sharedPass"
+                android:layout_gravity="right"
+                android:layout_marginLeft="2dp"
+                android:text="QHahUjmgS7KWh3"
+                android:editable="true"
+                android:layout_marginRight="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="DroneId"
+                android:id="@+id/textView3" />
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="10"
+                android:id="@+id/droneID"
+                android:layout_weight="1"
+                android:text="1" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>
