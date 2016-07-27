@@ -70,13 +70,13 @@ public class ibriPhotoService extends Service {
      * Photo Width
      * See the column row of the table above
      */
-    final int photoWidth = 640;
+    final static int photoWidth = 640;
 
     /**
      * Photo Height
      * see the second column of the table above
      */
-    final int photoHeight = 480;
+    final static int photoHeight = 480;
 
     /**
      * When the service is created, a photo is taken
