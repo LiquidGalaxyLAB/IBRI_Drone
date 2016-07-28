@@ -43,6 +43,13 @@
 
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Log"
+        android:id="@+id/textView4" />
+
+    <TextView
         android:layout_width="fill_parent"
         android:layout_height="133dp"
         android:id="@+id/logView"
@@ -53,7 +60,8 @@
         android:layout_alignEnd="@+id/endService"
         android:layout_below="@+id/endService"
         android:paddingTop="15dp"
-        android:layout_weight="0.94" />
+        android:layout_weight="0.94"
+        android:background="@color/bgcolor" />
 
     <View
         android:layout_height="1px"
@@ -86,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/serverport"
                 android:layout_marginRight="2dp"
-                android:text="10.213.6.126:80"
+                android:text="moiseslodeiro.es:80/ibri"
                 />
         </LinearLayout>
 

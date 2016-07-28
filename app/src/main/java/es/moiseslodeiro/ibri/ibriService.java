@@ -22,6 +22,7 @@ import android.widget.Toast;
  * - GSON: Used to implement Google JSON
  */
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -221,6 +222,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
+
         String url ="http://"+ibriActivity.serverport+"/getDroneMissionData/"+ibriActivity.droneId+"/";
         Log.d("URL", url);
 
@@ -301,6 +303,9 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
             }
 
         });
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);

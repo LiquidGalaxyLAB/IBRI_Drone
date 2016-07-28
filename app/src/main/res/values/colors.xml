@@ -6,5 +6,6 @@
 
     <color name="ibriColor">#942280</color>
     <color name="ibriColorTop">#721a62</color>
+    <color name="bgcolor">#fafafa</color>
 
 </resources>
