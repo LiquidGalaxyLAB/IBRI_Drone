@@ -262,7 +262,7 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                             }
 
-                            sendResult("Connected!");
+                            sendResult("Connected! Mission:"+ibriActivity.mission.missionId);
 
                             JSONArray insearch =  missionData.getJSONArray("insearch");
 
@@ -446,6 +446,17 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
                         Log.d(TAG+"BeaconScan", sendString);
                         sendData(url, ibriActivity.latitude, ibriActivity.longitude);
 
+                    }else{
+                        DecimalFormat df = new DecimalFormat("##.###");
+                        String sendString = "Beacon! " + url + "\n";
+                        sendString += "But the beacon is not in search" + "\n";
+                        sendString += beacon.getBluetoothAddress() + "\n";
+                        sendString += df.format(beacon.getDistance()) + "m away\n";
+                        sendString += "near " + ibriActivity.latitude + ", " + ibriActivity.longitude + "\n";
+                        sendString += "---------------------------------------------------------------------------------------";
+                        sendResult(sendString);
+                        Log.d(TAG+"BeaconScan", sendString);
+                        //sendData(url, ibriActivity.latitude, ibriActivity.longitude);
                     }
 
                 }
