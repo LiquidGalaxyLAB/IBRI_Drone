@@ -44,6 +44,8 @@ import com.google.gson.Gson;
  * - Map
  */
 
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -176,8 +178,15 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
             @Override
             public void onReceive(Context context, Intent intent) {
                 String msg = intent.getStringExtra("message");
-                String tmpTxt = ""+log.getText();
-                log.setText(msg+"\n"+tmpTxt);
+
+                if(msg.startsWith("id ")){
+                    TextView mID = (TextView)findViewById(R.id.missionId);
+                    mID.setText("Current Mission: "+msg);
+                }else {
+                    String tmpTxt = ""+log.getText();
+                    log.setText(msg+"\n"+tmpTxt);
+                }
+
             }
         };
 
@@ -256,6 +265,9 @@ public class ibriActivity extends AppCompatActivity implements LocationListener 
         password = String.valueOf(pass.getText());
         TextView di = (TextView)findViewById(R.id.droneID);
         droneId = Integer.parseInt(di.getText().toString());
+
+        log = (TextView)findViewById(R.id.logView);
+        log.setText("");
 
         serverIntent = new Intent(this, ibriService.class);
         startService(this.serverIntent);

@@ -262,8 +262,8 @@ public class ibriService extends Service implements RangeNotifier, BeaconConsume
 
                             }
 
-                            sendResult("Connected! Mission:"+ibriActivity.mission.missionId);
-
+                            sendResult("Connected! Mission: "+ibriActivity.mission.missionId);
+                            sendResult("id "+ibriActivity.mission.missionId);
                             JSONArray insearch =  missionData.getJSONArray("insearch");
 
                             for(int i = 0; i < insearch.length(); i++){
